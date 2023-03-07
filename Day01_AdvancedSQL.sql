@@ -37,7 +37,6 @@ BEGIN
 
 END $$ ;
 
-
 --**************************************************************
 --***********************VARIABLES - CONSTANT*******************
 --**************************************************************
@@ -161,5 +160,185 @@ BEGIN
 	RAISE NOTICE '% % %', rec.id, rec.title, rec.type;
 	
 END $$;
+
+-- **************** Constant ****************
+
+DO $$
+DECLARE
+	vat CONSTANT numeric := 0.1;
+	net_price	numeric := 20.5;
+
+BEGIN
+	RAISE NOTICE 'Satis fiyati : %' , net_price*(1+vat);
+	-- vat := 0.05; -- constant bir ifadeyi ilk setleme isleminden sonra degistirmeye calisirsak hata aliriz.
+
+END $$;
+
+-- Constant bir ifadeye RT da deger verebilir miyiz ???
+
+DO $$
+DECLARE
+	start_at CONSTANT time := now();
+	
+BEGIN
+	RAISE NOTICE 'Blogun calisma zamani : %', start_at;
+	
+END $$;
+
+
+--  ////////////////// Control Structures //////////////////
+
+--  ***************** If Statement *****************
+
+-- syntax :
+/*
+
+	if condition then
+				statement;
+	end if;
+	
+*/
+
+-- Task : 0 id'li filmi bulalim eger yoksa ekrana uyari yazisi verelim
+
+DO $$
+DECLARE
+	istenen_film film%ROWTYPE;
+	istenen_film_id film.id%TYPE := 10;
+
+BEGIN
+	SELECT * FROM film
+	INTO istenen_film
+	WHERE id = istenen_film_id;
+
+	IF NOT FOUND THEN
+		RAISE NOTICE 'Girdiginiz id li film bulunamadi: %', istenen_film_id;
+	END IF;
+end $$;
+
+
+-- ***************** IF-THEN-ELSE *****************
+
+/*
+	IF condition THEN
+			statement;
+	ELSE
+			alternative statement;
+	END IF
+*/
+
+-- TASK : 1 id'li film varsa title bilgisini yaziniz, yoksa uyari yazisini ekrana basiniz.
+
+DO $$
+DECLARE
+	selected_film film%ROWTYPE;
+	input_film_id film.id%TYPE := 10;
+
+BEGIN
+	SELECT * FROM film
+	INTO selected_film
+	WHERE id = input_film_id;
+	
+	IF NOT FOUND THEN
+		RAISE NOTICE 'Girmis oldugunuz id li film bulunamadi. %', input_film_id;
+	ELSE
+		RAISE NOTICE 'Filmin ismi : %', selected_film.title;
+	END IF;
+
+END $$;
+
+-- ************* IF-THEN-ELSE-IF ************************
+
+-- syntax : 
+
+/*
+	IF condition_1 THEN
+				statement_1;
+		ELSEIF condition_2 THEN
+				statement_2;
+	    ELSEIF condition_3 THEN
+				statement_3;
+		ELSE 
+				statement_final;
+	END IF ;
+*/
+
+/*
+Task : 1 id li film varsa ;
+			süresi 50 dakikanın altında ise Short,
+			50<length<120 ise Medium,
+			length>120 ise Long yazalım
+*/
+
+
+DO $$
+DECLARE
+	v_film film%ROWTYPE;
+	len_description varchar(50);
+
+BEGIN
+	SELECT * FROM film
+	INTO v_film	  --	v_film.id = 1	/	v_film.title = 'Kuzularin Sessizligi'
+	WHERE id = 30;
+
+	IF NOT FOUND THEN
+		RAISE NOTICE 'Film bulunamadi...';
+	ELSE
+		IF v_film.length > 0 AND v_film.length <= 50 THEN
+				len_description = 'Short';
+			ELSEIF v_film.length > 50 AND v_film.length < 120 THEN
+				len_description = 'Medium';
+			ELSEIF v_film.length > 120 THEN
+				len_description = 'Long';
+			ELSE
+				len_description = 'Undefined!';
+		END IF;
+	RAISE NOTICE ' % filminin suresi : %', v_film.title, v_film.length;
+	END IF;
+
+END $$;
+
+-- *************** Case Statement ***************
+
+-- syntax :
+ 
+ /*
+ 	CASE search-expression
+	WHEN expression_1 [, expression_2,...] THEN
+		statement
+	[..]
+	ELSE
+		else-statement
+	END case;
+ */
+
+-- Task : Filmin türüne göre çocuklara uygun olup olmadığını ekrana yazalım
+
+DO $$
+DECLARE
+	uyari varchar(50);
+	tur film.type%TYPE;
+BEGIN
+	SELECT TYPE FROM film
+	INTO tur
+	WHERE id = 4;
+
+	IF FOUND THEN
+		CASE tur
+			WHEN 'Korku' THEN uyari = 'Cocuklar icin uygun degildir.';
+			WHEN 'Macera' THEN uyari = 'Cocuklar icin uygundur.';
+			WHEN 'Animasyon' THEN uyari = 'Cocuklar icin tavsiye edilir.';
+			ELSE 
+				uyari = 'Tanimlanamadi...';
+		END CASE;
+		RAISE NOTICE '%', uyari;
+	END IF;
+
+END $$;
+
+
+
+
+
 
 
