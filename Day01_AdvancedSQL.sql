@@ -337,6 +337,60 @@ BEGIN
 END $$;
 
 
+--Task 1 : Film tablosundaki film sayısı 10 dan az ise "Film sayısı az" yazdırın, 10 dan çok ise "Film sayısı yeterli" yazdıralım
+
+DO $$
+DECLARE
+	sayi integer :=0;
+	
+BEGIN
+	SELECT COUNT(*) FROM film  -- 4
+	INTO sayi;	--	sayi=4
+	
+	IF (sayi<10) THEN
+			RAISE NOTICE 'Film sayisi az';
+		ELSE
+			RAISE NOTICE 'Film sayisi yeterli';
+	END IF;
+END $$;
+		
+		
+-- Task 2: user_age isminde integer data türünde bir değişken tanımlayıp default 
+-- olarak bir değer verelim, If yapısı ile girilen 
+-- değer 18 den büyük ise Access Granted, küçük ise Access Denied yazdıralım
+
+DO $$
+DECLARE
+	user_age integer := 0;
+BEGIN
+	IF user_age < 18 THEN
+		RAISE NOTICE 'Access Denied';
+	ELSE
+		RAISE NOTICE 'Access Granted';
+	END IF;
+END $$;
+
+-- Task 3: a ve b isimli integer türünde 2 değişken tanımlayıp default değerlerini verelim, 
+-- eğer a nın değeri b den büyükse "a , b den büyüktür" yazalım, 
+-- tam tersi durum için "b, a dan büyüktür" yazalım, iki değer birbirine eşit ise " a,  b'ye eşittir" yazalım:
+
+DO $$
+DECLARE
+	a integer := 2;
+	b integer := 3;
+BEGIN
+	IF (a>b) THEN
+		RAISE NOTICE 'a b den buyuktur';
+	END IF;
+	
+	IF (a=b) THEN
+		RAISE NOTICE 'a b ye esittir';
+	END IF;
+	
+	IF (a<b) THEN
+		RAISE NOTICE 'b a den buyuktur';
+	END IF;
+END $$;
 
 
 
