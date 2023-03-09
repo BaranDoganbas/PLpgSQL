@@ -392,6 +392,258 @@ BEGIN
 	END IF;
 END $$;
 
+-- Task 4 : kullaniciYasi isimli bir değişken oluşturup default değerini verin, 
+--	girilen yaş 18 den büyükse "Oy kullanabilirsiniz", 18 den küçük ise 
+--	"Oy kullanamazsınız" yazısını yazalım.
+
+DO $$
+DECLARE
+	kullaniciYasi integer :=13;
+BEGIN
+	IF kullaniciYasi>18 THEN
+		RAISE NOTICE 'Oy kullanabilirsiniz';
+		ELSE
+			RAISE NOTICE 'Oy kullanamazsınız';
+	END IF;
+END $$ ;
+
+
+-- *********************** LOOP ***********************
+
+-- syntax
+
+LOOP
+	STATEMENT;
+END LOOP;
+
+-- loop'u sonlandirmak icin loop'un icine if yapisini kullanabiliriz :
+
+LOOP
+	statements;
+	IF CONDITION THEN
+		EXIT;	--	loop'dan cikmami sagliyor
+	END IF;
+END LOOP;
+
+-- nested loop
+
+<<outher>>
+LOOP
+	statements;
+	<<inner>>
+	LOOP
+		.....
+		exit <<inner>>
+		END LOOP;
+END LOOP;
+	
+-- Task : Fibonacci serisinde, belli bir sıradaki sayıyı ekrana getirelim
+
+-- Fibonacci Serisi : 0,1,1,2,3,5,8,13,...
+
+DO $$
+DECLARE
+	n integer :=40;
+	counter integer :=0;
+	i integer :=0;
+	j integer :=1;
+	fib integer :=0;
+
+BEGIN
+	IF(n<1) THEN
+		fib:=0;
+	END IF;
+	LOOP
+		EXIT WHEN counter =n;
+		counter := counter + 1;
+		SELECT j, (i+j) INTO i,j;	
+	END LOOP;
+	fib:=i;
+	RAISE NOTICE '%', fib;
+END $$;
+
+-- ************************* WHILE LOOP *************************
+
+syntax :
+
+WHILE condition LOOP
+	statements;
+END LOOP;
+
+-- Task : 1 dan 4 e kadar counter değerlerini ekrana basalım
+
+DO $$
+DECLARE
+	n integer :=4;
+	counter integer :=0;
+
+BEGIN
+	WHILE counter<n LOOP
+		counter:=counter+1;
+		raise notice '%', counter;
+	END LOOP;
+
+END $$;
+
+-- Cevap 2:
+
+DO $$
+
+DECLARE
+	counter integer :=0;
+
+BEGIN 
+	WHILE counter<5 LOOP
+		counter := counter+1;
+		raise notice '%', counter;
+	END LOOP;	
+
+END $$ ;
+
+
+-- Task : sayac isminde bir degisken olusturun ve dongu icinde sayaci birer artirin,  
+-- her dongude sayacin degerini ekrana basin ve sayac degeri 5 e esit olunca donguden cikin
+
+DO $$
+DECLARE
+	counter integer :=0;
+BEGIN
+	LOOP
+		RAISE NOTICE '%', counter;
+		counter := counter +1;
+		EXIT WHEN counter =5;
+	END LOOP;
+END $$;
+
+
+-- **************  FOR LOOP *********************
+-- syntax
+for loop_counter in [reverse] from..to [by step] loop
+	statements;
+end loop ;
+
+
+-- **************  FOR LOOP *********************
+
+-- syntax
+
+for loop_counter in [reverse] from..to [by step] loop
+	statements;
+end loop ;
+
+
+-- in
+
+do $$
+begin
+	for counter in 1..6 loop
+		raise notice 'counter: %', counter;
+	end loop;	
+
+end $$;
+
+
+-- reverse ( Ornek )
+
+do $$
+begin
+	for counter in reverse 5..1 loop
+		raise notice 'counter : %', counter;
+	end loop;
+end $$;
+
+
+-- Task : 10 dan 20 ye kadar 2 ser 2 ser ekrana sayilari basalim :
+
+DO $$
+BEGIN
+	FOR counter IN 10..20 BY 2 LOOP
+		RAISE NOTICE 'counter : %', counter;
+	END LOOP;
+END $$;
+
+
+-- Task : olusturulan array'in elemanlarini array seklinde gosterelim :
+
+DO $$
+DECLARE
+	array_int int[] := array[11,22,33,44,55,66,77,88];
+	var int[];
+
+BEGIN
+	FOR var IN SELECT array_int LOOP
+		RAISE NOTICE '%', var;
+	END LOOP;
+
+END $$;
+
+-- DB'de loop kullanimi
+
+-- syntax :
+
+FOR target IN QUERY LOOP
+	statement;
+END LOOP;
+
+-- Task : Filmleri süresine göre sıraladığımızda en uzun 2 filmi gösterelim
+
+DO $$
+DECLARE
+	f record;
+BEGIN
+	FOR f IN SELECT title,length FROM film ORDER BY length DESC LIMIT 2 LOOP
+		RAISE NOTICE '% ( % dakika)', f.title, f.length;
+	END LOOP;
+
+END $$;
+
+
+CREATE TABLE employees (
+  employee_id serial PRIMARY KEY,
+  full_name VARCHAR NOT NULL,
+  manager_id INT
+);
+
+INSERT INTO employees (
+  employee_id,
+  full_name,
+  manager_id
+)
+VALUES
+  (1, 'M.S Dhoni', NULL),
+  (2, 'Sachin Tendulkar', 1),
+  (3, 'R. Sharma', 1),
+  (4, 'S. Raina', 1),
+  (5, 'B. Kumar', 1),
+  (6, 'Y. Singh', 2),
+  (7, 'Virender Sehwag ', 2),
+  (8, 'Ajinkya Rahane', 2),
+  (9, 'Shikhar Dhawan', 2),
+  (10, 'Mohammed Shami', 3),
+  (11, 'Shreyas Iyer', 3),
+  (12, 'Mayank Agarwal', 3),
+  (13, 'K. L. Rahul', 3),
+  (14, 'Hardik Pandya', 4),
+  (15, 'Dinesh Karthik', 4),
+  (16, 'Jasprit Bumrah', 7),
+  (17, 'Kuldeep Yadav', 7),
+  (18, 'Yuzvendra Chahal', 8),
+  (19, 'Rishabh Pant', 8),
+  (20, 'Sanju Samson', 8);
+
+-- Task :  Employee ID si en buyuk ilk 10 kisiyi ekrana yazalim
+
+DO $$
+DECLARE
+	f record;
+BEGIN
+	FOR f IN SELECT employee_id, full_name FROM employees ORDER BY employee_id DESC LIMIT 10 LOOP
+		RAISE NOTICE '% = %', f.full_name,f.employee_id;
+	END LOOP;
+
+END $$;
+
+
 
 
 
