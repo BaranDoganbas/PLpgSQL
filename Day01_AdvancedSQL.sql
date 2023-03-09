@@ -644,7 +644,133 @@ BEGIN
 END $$;
 
 
+-- *********** EXIT ***********
+
+EXIT WHEN counter >10 ;
+
+-- yukardakini if ile yazmak istersem
+-- alttaki ve ustteki kod ayni isi yapiyor
+
+IF counter > 10 THEN
+	EXIT;
+END IF;
+
+-- Ornek
+
+DO $$
+BEGIN
+	<<inner_block>>
+	BEGIN
+		EXIT inner_block;
+		RAISE NOTICE 'Inner block dan Merhaba';
+	END;
+	
+	RAISE NOTICE 'Outher block dan merhaba';
+	
+END $$;
+
+-- *********** CONTINUE ***********
+
+-- Mevcut iterasyonu atlamak icin kullanilir.
+
+-- syntax :
+
+continue [loop_label] [when condition] -- [] bu kısımlar opsiyoneldir
+
+-- Task : continue yapisi kullanarak 1 dahil 10 a kadar olan tek sayilari ekrana basalim
+
+DO $$
+DECLARE
+	counter int :=0;
+BEGIN
+	LOOP
+		counter := counter + 1;	-- Loop icinde counter degerim 1 artiriliyor
+		EXIT WHEN counter >10;	-- Counter degerim 10'dan buyuk olursa loop'dan cik
+		CONTINUE WHEN MOD(counter, 2)=0;	-- counter cift ise bu iterasyonu terk et
+		RAISE NOTICE '%', counter;		-- counter degerimi ekrana basiyorum.
+	END LOOP;
+END $$;
 
 
+-- **********************************
+-- ************ FUNCTION ************
+-- **********************************
+
+-- syntax :
+
+create [or replace] function function_name(param_list)
+	RETURNS return_type -- donen data turunu belirliyorum.
+	LANGUAGE plpgsql 	-- kullanilan prosedurel dili tanimliyor.
+	AS
+	
+	$$
+	DECLARE
+	BEGIN
+	
+	END $$;
+
+-- Film tablomuzdaki belirli sure arasindaki filmlerin sayisini getiren bir fonksiyon yazalim
+
+CREATE FUNCTION get_film_count(len_from int, len_to int)
+RETURNS int
+LANGUAGE plpgsql
+AS
+
+	$$
+	DECLARE
+		film_count integer;
+	BEGIN
+		SELECT COUNT(*)
+		INTO film_count
+		FROM film
+		WHERE length BETWEEN len_from AND len_to;
+		RETURN film_count;
+	
+	END $$;
+
+-- 1. Yol :	( positional notation )
+
+SELECT get_film_count(40,190);
+
+-- 2. Yol :	( named notation )
+
+SELECT get_film_count(
+
+	len_from:= 40,
+	len_to	:= 135
+	);
+
+-- HAZIR METHOD
+
+SELECT MIN(length) FROM film;
+SELECT MAX(length) FROM film;
+SELECT AVG(length) FROM film;
 
 
+-- Task : parametre olarak girilen iki sayının toplamını veren sayitoplama adında fonksiyon yazalım
+
+CREATE FUNCTION sayi_toplami(sayi1 int, sayi2 int)
+RETURNS int
+LANGUAGE plpgsql
+AS
+	$$
+	BEGIN
+		RETURN sayi1 + sayi2;
+	END
+	$$
+		
+SELECT sayi_toplami(5,21);
+
+
+CREATE FUNCTION uc_sayi_toplama(sayi1 int, sayi2 int, sayi3 int)
+RETURNS int
+LANGUAGE plpgsql
+AS
+	$$
+	BEGIN
+		RETURN sayi1 + sayi2 + sayi3;
+	END
+	$$
+
+-- Odev : Büyük harfle girilen değeri küçük harfle yazılsın ve içerisinde ı,ş,ç,ö,ğ,ü  
+-- geçen harfleri sırasıyla i,s,o,g,u harflerine çeviren bir fonksiyon yazalım
